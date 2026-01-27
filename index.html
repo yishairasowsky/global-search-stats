@@ -2,7 +2,6 @@
 <html>
 <head>
 <title>World Knowledge Index</title>
-
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
 <meta http-equiv="Pragma" content="no-cache" />
 <meta http-equiv="Expires" content="0" />
@@ -31,31 +30,18 @@ Paleontology is the scientific study of life that existed prior to, and sometime
 
 <div class="log" id="log">Highlight a word...</div>
 
-<!-- Firebase v8 COMPAT -->
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-
 <script>
-const firebaseConfig = {
-  apiKey: "AIzaSyDLUw3H6WpH7Fgi1pblJ0ayZkdo6TN4wkI",
-  authDomain: "global-search-stats.firebaseapp.com",
-  databaseURL: "https://global-search-stats-default-rtdb.firebaseio.com",
-  projectId: "global-search-stats",
-  storageBucket: "global-search-stats.appspot.com",
-  messagingSenderId: "1013891666352",
-  appId: "1:1013891666352:web:9d058055f72de45a8c0675"
-};
+const DB_URL = "https://global-search-stats-default-rtdb.firebaseio.com/chosenWord.json";
 
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-
-// Capture highlighted word
 document.addEventListener("mouseup", () => {
   const text = window.getSelection().toString().trim();
-  console.log("Selected:", text);
-
   if (text.length > 2 && text.length < 30 && !text.includes(" ")) {
-    db.ref("chosenWord").set(text);
+
+    fetch(DB_URL, {
+      method: "PUT",
+      body: JSON.stringify(text)
+    });
+
     document.getElementById("log").innerText = "Chosen: " + text;
   }
 });

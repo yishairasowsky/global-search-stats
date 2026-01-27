@@ -8,31 +8,18 @@
 
 <body style="font-family:Arial; padding:40px;">
 <h2>🧙 Control Panel</h2>
-<h1 id="word">Waiting for selection...</h1>
-
-<!-- Firebase v8 COMPAT -->
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+<h1 id="word">Waiting...</h1>
 
 <script>
-const firebaseConfig = {
-  apiKey: "AIzaSyDLUw3H6WpH7Fgi1pblJ0ayZkdo6TN4wkI",
-  authDomain: "global-search-stats.firebaseapp.com",
-  databaseURL: "https://global-search-stats-default-rtdb.firebaseio.com",
-  projectId: "global-search-stats",
-  storageBucket: "global-search-stats.appspot.com",
-  messagingSenderId: "1013891666352",
-  appId: "1:1013891666352:web:9d058055f72de45a8c0675"
-};
+const DB_URL = "https://global-search-stats-default-rtdb.firebaseio.com/chosenWord.json";
 
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
+async function pollWord() {
+  const res = await fetch(DB_URL);
+  const word = await res.json();
+  if (word) document.getElementById("word").innerText = word;
+}
 
-// Listen for word
-db.ref("chosenWord").on("value", snap => {
-  console.log("DB update:", snap.val());
-  document.getElementById("word").innerText = snap.val();
-});
+setInterval(pollWord, 1000);
 </script>
 
 </body>
