@@ -31,33 +31,29 @@ Paleontology is the scientific study of life that existed prior to, and sometime
 
 <div class="log" id="log">Highlight a word...</div>
 
-<!-- Firebase COMPAT SDK (IMPORTANT) -->
+<!-- Firebase v8 COMPAT -->
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
 <script>
-// 🔴 PASTE YOUR REAL CONFIG HERE
 const firebaseConfig = {
-  apiKey: "PASTE_HERE",
-  authDomain: "PASTE_HERE",
-  databaseURL: "PASTE_HERE",
-  projectId: "PASTE_HERE",
-  storageBucket: "PASTE_HERE",
-  messagingSenderId: "PASTE_HERE",
-  appId: "PASTE_HERE"
+  apiKey: "AIzaSyDLUw3H6WpH7Fgi1pblJ0ayZkdo6TN4wkI",
+  authDomain: "global-search-stats.firebaseapp.com",
+  databaseURL: "https://global-search-stats-default-rtdb.firebaseio.com",
+  projectId: "global-search-stats",
+  storageBucket: "global-search-stats.appspot.com",
+  messagingSenderId: "1013891666352",
+  appId: "1:1013891666352:web:9d058055f72de45a8c0675"
 };
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-// Force cache-busting reload once
-if (!location.search.includes("v=")) {
-  location.search = "v=" + Date.now();
-}
-
 // Capture highlighted word
 document.addEventListener("mouseup", () => {
   const text = window.getSelection().toString().trim();
+  console.log("Selected:", text);
+
   if (text.length > 2 && text.length < 30 && !text.includes(" ")) {
     db.ref("chosenWord").set(text);
     document.getElementById("log").innerText = "Chosen: " + text;
