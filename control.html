@@ -1,25 +1,33 @@
 <!DOCTYPE html>
 <html>
 <head>
+<title>Control Panel</title>
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-<meta http-equiv="Pragma" content="no-cache" />
-<meta http-equiv="Expires" content="0" />
 </head>
 
 <body style="font-family:Arial; padding:40px;">
-<h2>🧙 Control Panel</h2>
-<h1 id="word">Waiting...</h1>
+<h1>🧙 Control Panel</h1>
+
+<input id="word" placeholder="Force word here" style="font-size:20px;">
+<button onclick="force()">FORCE</button>
+
+<h2 id="live"></h2>
 
 <script>
-const DB_URL = "https://global-search-stats-default-rtdb.firebaseio.com/chosenWord.json";
+const DB_URL = "https://global-search-stats-default-rtdb.firebaseio.com/secretMagic/chosenWord.json";
 
-async function pollWord() {
-  const res = await fetch(DB_URL);
-  const word = await res.json();
-  if (word) document.getElementById("word").innerText = word;
+function force() {
+  const w = document.getElementById("word").value;
+  fetch(DB_URL, { method:"PUT", body: JSON.stringify(w) });
 }
 
-setInterval(pollWord, 1000);
+// Live monitor
+async function poll() {
+  const r = await fetch(DB_URL);
+  const w = await r.json();
+  if (w) document.getElementById("live").innerText = "Current word: " + w;
+}
+setInterval(poll, 1000);
 </script>
 
 </body>

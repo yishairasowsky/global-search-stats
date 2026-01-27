@@ -1,15 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>World Knowledge Index</title>
+<title>Global Knowledge Index</title>
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-<meta http-equiv="Pragma" content="no-cache" />
-<meta http-equiv="Expires" content="0" />
 
 <style>
-body { font-family: serif; padding: 40px; max-width: 900px; margin:auto; background:#f5f5f5; }
-.card { background:white; padding:30px; border-radius:10px; box-shadow:0 10px 20px rgba(0,0,0,0.1); }
-.log { position: fixed; bottom: 10px; right: 10px; background:black; color:white; padding:10px; font-size:14px; opacity:0.7; }
+body { font-family: Georgia, serif; padding:40px; max-width:900px; margin:auto; background:#f4f4f4; }
+.card { background:white; padding:30px; border-radius:8px; box-shadow:0 0 10px rgba(0,0,0,0.1); }
 </style>
 </head>
 
@@ -18,34 +15,42 @@ body { font-family: serif; padding: 40px; max-width: 900px; margin:auto; backgro
 <div class="card">
 <h1>Random Encyclopedia Entry</h1>
 <p>
-Serendipity is a concept that refers to the occurrence of events by chance in a happy or beneficial way.
-Metamorphosis is a biological process by which an animal physically develops after birth.
-Photosynthesis is the process by which green plants use sunlight to synthesize foods.
-Hippopotomonstrosesquipedaliophobia is the fear of long words.
-Epistemology is the branch of philosophy concerned with knowledge.
-Paleontology is the scientific study of life that existed prior to, and sometimes including, the start of the Holocene epoch.
+Serendipity is the occurrence of fortunate events by chance.  
+Metamorphosis is a process of transformation.  
+Photosynthesis converts light into energy.  
+Hippopotomonstrosesquipedaliophobia is the fear of long words.  
+Epistemology studies knowledge.  
+Paleontology studies ancient life.
 </p>
-<p>Choose any word that stands out to you.</p>
+
+<p><b>Select any single word that stands out.</b></p>
+
+<h2 id="forcedWord"></h2>
 </div>
 
-<div class="log" id="log">Highlight a word...</div>
-
 <script>
-const DB_URL = "https://global-search-stats-default-rtdb.firebaseio.com/chosenWord.json";
+const DB_URL = "https://global-search-stats-default-rtdb.firebaseio.com/secretMagic/chosenWord.json";
 
+// Send selected word
 document.addEventListener("mouseup", () => {
   const text = window.getSelection().toString().trim();
-  if (text.length > 2 && !text.includes(" ")) {
-
+  if (text.length >= 3 && text.length <= 60 && !text.includes(" ")) {
     fetch(DB_URL, {
       method: "PUT",
       body: JSON.stringify(text)
     });
-
-    document.getElementById("log").innerText = "Chosen: " + text;
   }
 });
+
+// Listen for forced word (polling)
+async function poll() {
+  const r = await fetch(DB_URL);
+  const w = await r.json();
+  if (w) document.getElementById("forcedWord").innerText = w;
+}
+setInterval(poll, 1000);
 </script>
 
 </body>
 </html>
+✅
