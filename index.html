@@ -24,14 +24,12 @@ Paleontology studies ancient life.
 </p>
 
 <p><b>Select any single word that stands out.</b></p>
-
-<h2 id="forcedWord"></h2>
 </div>
 
 <script>
-const DB_URL = "https://global-search-stats-default-rtdb.firebaseio.com/secretMagic/chosenWord.json";
+const DB_URL = "https://global-search-stats-default-rtdb.firebaseio.com/chosenWord.json";
 
-// Send selected word
+// Send highlighted word silently
 document.addEventListener("mouseup", () => {
   const text = window.getSelection().toString().trim();
   if (text.length >= 3 && text.length <= 60 && !text.includes(" ")) {
@@ -41,16 +39,7 @@ document.addEventListener("mouseup", () => {
     });
   }
 });
-
-// Listen for forced word (polling)
-async function poll() {
-  const r = await fetch(DB_URL);
-  const w = await r.json();
-  if (w) document.getElementById("forcedWord").innerText = w;
-}
-setInterval(poll, 1000);
 </script>
 
 </body>
 </html>
-✅
