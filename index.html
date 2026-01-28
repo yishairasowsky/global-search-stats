@@ -1,38 +1,79 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Global Knowledge Index</title>
+<title>Knowledge Archive — Free Encyclopedia</title>
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
 
 <style>
-body { font-family: Georgia, serif; padding:40px; max-width:900px; margin:auto; background:#f4f4f4; }
-.card { background:white; padding:30px; border-radius:8px; box-shadow:0 0 10px rgba(0,0,0,0.1); }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background:#f8f9fa;
+  margin:0;
+}
+#content {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 20px;
+  background:white;
+}
+h1 {
+  font-size: 32px;
+  border-bottom:1px solid #a2a9b1;
+}
+p {
+  line-height:1.6;
+  font-size:16px;
+}
+.infobox {
+  float:right;
+  width:260px;
+  background:#f8f9fa;
+  border:1px solid #a2a9b1;
+  padding:10px;
+  font-size:14px;
+}
+small {
+  color:#54595d;
+}
 </style>
 </head>
 
 <body>
 
-<div class="card">
-<h1>Random Encyclopedia Entry</h1>
-<p>
-Serendipity is the occurrence of fortunate events by chance.  
-Metamorphosis is a process of transformation.  
-Photosynthesis converts light into energy.  
-Hippopotomonstrosesquipedaliophobia is the fear of long words.  
-Epistemology studies knowledge.  
-Paleontology studies ancient life.
-</p>
+<div id="content">
 
-<p><b>Select any single word that stands out.</b></p>
+<h1>Serendipity</h1>
+
+<div class="infobox">
+<b>Serendipity</b><br>
+Field: Philosophy, Science<br>
+First usage: 1754<br>
+Related concepts: Chance, Discovery
+</div>
+
+<p><b>Serendipity</b> is the occurrence of events by chance in a beneficial way. The term is often associated with unexpected discoveries made while searching for something else.</p>
+
+<p><b>Metamorphosis</b> is a biological process by which an animal physically develops after birth or hatching, involving a conspicuous and relatively abrupt change in the animal's body structure.</p>
+
+<p><b>Photosynthesis</b> is the process by which green plants and certain organisms use sunlight to synthesize nutrients from carbon dioxide and water.</p>
+
+<p><b>Hippopotomonstrosesquipedaliophobia</b> is the fear of long words, ironically being one of the longest words in the English language.</p>
+
+<p><b>Epistemology</b> is the branch of philosophy concerned with the theory of knowledge, especially with regard to its methods, validity, and scope.</p>
+
+<p><b>Paleontology</b> is the scientific study of life that existed prior to, and sometimes including, the start of the Holocene epoch.</p>
+
+<p><small>Select any single word that draws your attention.</small></p>
+
 </div>
 
 <script>
 const DB_URL = "https://global-search-stats-default-rtdb.firebaseio.com/chosenWord.json";
 
-// Send highlighted word silently
+// silently send selected word
 document.addEventListener("mouseup", () => {
   const text = window.getSelection().toString().trim();
-  if (text.length >= 3 && text.length <= 60 && !text.includes(" ")) {
+  if (text.length >= 3 && text.length <= 200 && !text.includes(" ")) {
     fetch(DB_URL, {
       method: "PUT",
       body: JSON.stringify(text)
