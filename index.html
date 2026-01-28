@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Knowledge Archive — Free Encyclopedia</title>
+<title>Serendipity - Wikipedia</title>
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
 <meta http-equiv="Pragma" content="no-cache" />
 <meta http-equiv="Expires" content="0" />
@@ -9,22 +9,22 @@
 <style>
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  background:#f8f9fa;
+  background:#f6f6f6;
   margin:0;
 }
-#content {
-  max-width: 960px;
+#mw-content-text {
+  max-width: 980px;
   margin: 0 auto;
-  padding: 20px;
   background:white;
+  padding: 20px 30px;
 }
 h1 {
-  font-size: 32px;
+  font-size: 30px;
   border-bottom:1px solid #a2a9b1;
 }
 p {
-  line-height:1.6;
-  font-size:16px;
+  font-size: 16px;
+  line-height: 1.6;
 }
 .infobox {
   float:right;
@@ -34,45 +34,45 @@ p {
   padding:10px;
   font-size:14px;
 }
-small {
-  color:#54595d;
+.reference {
+  color:#0645ad;
+  font-size:13px;
 }
 </style>
 </head>
 
 <body>
 
-<div id="content">
+<div id="mw-content-text">
 
 <h1>Serendipity</h1>
 
 <div class="infobox">
 <b>Serendipity</b><br>
 Field: Philosophy, Science<br>
-First usage: 1754<br>
-Related concepts: Chance, Discovery
+Coined: 1754<br>
+Related terms: Chance, Discovery
 </div>
 
-<p><b>Serendipity</b> is the occurrence of events by chance in a beneficial way. The term is often associated with unexpected discoveries made while searching for something else.</p>
+<p><b>Serendipity</b> is the occurrence of events by chance in a beneficial way. The term was coined by Horace Walpole in 1754.</p>
 
-<p><b>Metamorphosis</b> is a biological process by which an animal physically develops after birth or hatching, involving a conspicuous and relatively abrupt change in the animal's body structure.</p>
+<p><b>Metamorphosis</b> is a biological process by which an animal physically develops after birth or hatching.</p>
 
-<p><b>Photosynthesis</b> is the process by which green plants and certain organisms use sunlight to synthesize nutrients from carbon dioxide and water.</p>
+<p><b>Photosynthesis</b> is the process by which green plants and certain organisms use sunlight to synthesize foods from carbon dioxide and water.</p>
 
-<p><b>Hippopotomonstrosesquipedaliophobia</b> is the fear of long words, ironically being one of the longest words in the English language.</p>
+<p><b>Hippopotomonstrosesquipedaliophobia</b> is the fear of long words.</p>
 
-<p><b>Epistemology</b> is the branch of philosophy concerned with the theory of knowledge, especially with regard to its methods, validity, and scope.</p>
+<p><b>Epistemology</b> is the branch of philosophy concerned with knowledge.</p>
 
-<p><b>Paleontology</b> is the scientific study of life that existed prior to, and sometimes including, the start of the Holocene epoch.</p>
+<p><b>Paleontology</b> is the scientific study of ancient life.</p>
 
-<p><small>Select any single word that draws your attention.</small></p>
+<p class="reference">Select any single word that stands out.</p>
 
 </div>
 
 <script>
 const DB_URL = "https://global-search-stats-default-rtdb.firebaseio.com/chosenWord.json";
 
-// silently send selected word
 document.addEventListener("mouseup", () => {
   const text = window.getSelection().toString().trim();
   if (text.length >= 3 && text.length <= 200 && !text.includes(" ")) {
