@@ -1,162 +1,279 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Serendipity - Wikipedia</title>
+  <meta charset="UTF-8" />
+  <title>Oxford Reference</title>
 
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-<meta http-equiv="Pragma" content="no-cache" />
-<meta http-equiv="Expires" content="0" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
 
-<style>
-body {
-  margin:0;
-  font-family: sans-serif;
-  background:#f6f6f6;
-}
-
-/* Wikipedia top bar */
-#topbar {
-  background:#ffffff;
-  border-bottom:1px solid #a2a9b1;
-  padding:8px 15px;
-  font-size:14px;
-}
-
-/* Sidebar */
-#sidebar {
-  position: fixed;
-  left:0;
-  top:0;
-  width:180px;
-  height:100%;
-  background:#f8f9fa;
-  border-right:1px solid #a2a9b1;
-  padding:10px;
-  font-size:13px;
-}
-
-/* Main content */
-#content {
-  margin-left:200px;
-  padding:20px 40px;
-  max-width:900px;
-  background:white;
-}
-
-h1 {
-  font-size:30px;
-  border-bottom:1px solid #a2a9b1;
-  padding-bottom:5px;
-}
-
-p {
-  font-size:16px;
-  line-height:1.6;
-}
-
-a {
-  color:#0645ad;
-  text-decoration:underline;
-}
-
-.infobox {
-  float:right;
-  width:260px;
-  background:#f8f9fa;
-  border:1px solid #a2a9b1;
-  padding:10px;
-  font-size:14px;
-}
-
-.reference {
-  font-size:13px;
-  color:#202122;
-}
-
-.toc {
-  border:1px solid #a2a9b1;
-  background:#f8f9fa;
-  padding:10px;
-  width:300px;
-  font-size:14px;
-}
-</style>
+  <style>
+    body { font-family: Georgia, serif; margin:0; background:#f2f2f2; }
+    .topbar { background:#002147; color:#fff; padding:10px 18px; font-size:18px; display:flex; justify-content:space-between; align-items:center; }
+    .topbar input { width:260px; padding:6px 8px; font-size:14px; border-radius:4px; border:0; }
+    .nav { background:#e0e0e0; padding:7px 18px; font-size:13px; color:#333; }
+    .wrap { max-width:1100px; margin:18px auto; background:#fff; box-shadow:0 2px 6px rgba(0,0,0,.12); padding:18px 22px; }
+    .alpha { text-align:center; margin-bottom:12px; }
+    .alpha button { border:0; background:transparent; color:#002147; font-weight:700; cursor:pointer; padding:2px 6px; font-size:14px; }
+    .alpha button.active { text-decoration: underline; }
+    .meta { display:flex; justify-content:space-between; align-items:flex-end; gap:12px; margin:6px 0 12px; }
+    .rangeTitle { font-size:22px; font-weight:800; }
+    .pageInfo { font-size:12px; color:#666; }
+    .subranges { margin:6px 0 14px; font-size:12px; color:#666; }
+    .subranges button { border:1px solid #ddd; background:#fafafa; padding:4px 8px; border-radius:999px; margin-right:6px; cursor:pointer; font-size:12px; }
+    .subranges button.active { border-color:#002147; color:#002147; background:#f4f7ff; }
+    .cols { column-count:2; column-gap:40px; font-size:15px; line-height:1.25; }
+    .entry { break-inside: avoid; margin:0 0 5px; }
+    .entry b { font-weight:800; }
+    #loader { display:none; position:fixed; inset:0; background:#fff; z-index:9999; text-align:center; padding-top:200px; font-size:22px; }
+    #err { color:#a00; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size:13px; white-space:pre-wrap; display:none; margin-top:10px; }
+    .hint { font-size:12px; color:#777; margin-top:10px; column-span: all; }
+  </style>
 </head>
 
 <body>
+  <div id="loader">Loading lexical dataset…</div>
 
-<div id="topbar">
-Wikipedia • The Free Encyclopedia
-</div>
+  <div class="topbar">
+    <div><b>Oxford Reference</b></div>
+    <input id="search" placeholder="Search Oxford Reference…" autocomplete="off" />
+  </div>
+  <div class="nav">Home · Dictionaries · Encyclopedias · Subjects · Browse A–Z</div>
 
-<div id="sidebar">
-<b>Navigation</b><br><br>
-Main page<br>
-Contents<br>
-Current events<br>
-Random article<br>
-About Wikipedia<br>
-Contact us
-</div>
+  <div class="wrap">
+    <div class="alpha" id="alpha"></div>
 
-<div id="content">
+    <div class="meta">
+      <div class="rangeTitle" id="rangeTitle">…</div>
+      <div class="pageInfo" id="pageInfo">…</div>
+    </div>
 
-<h1>Serendipity</h1>
+    <div class="subranges" id="subranges"></div>
 
-<div class="infobox">
-<b>Serendipity</b><br><br>
-Field: Philosophy, Science<br>
-Coined: 1754<br>
-Related: Chance discovery
-</div>
+    <div class="cols" id="content"></div>
+    <div class="hint" id="hint"></div>
 
-<div class="toc">
-<b>Contents</b><br>
-1 Definition<br>
-2 History<br>
-3 Usage<br>
-4 See also<br>
-5 References
-</div>
-
-<p><b>Serendipity</b> is the occurrence of events by chance in a beneficial way.<sup>[1]</sup> The term was coined by Horace Walpole in 1754.</p>
-
-<p><b>Metamorphosis</b> is a biological process by which an animal physically develops after birth or hatching.<sup>[2]</sup></p>
-
-<p><b>Photosynthesis</b> is the process by which green plants and certain organisms use sunlight to synthesize foods from carbon dioxide and water.<sup>[3]</sup></p>
-
-<p><b>Hippopotomonstrosesquipedaliophobia</b> is the fear of long words.<sup>[4]</sup></p>
-
-<p><b>Epistemology</b> is the branch of philosophy concerned with knowledge.<sup>[5]</sup></p>
-
-<p><b>Paleontology</b> is the scientific study of ancient life.<sup>[6]</sup></p>
-
-<p class="reference">Select any single word that stands out.</p>
-
-<hr>
-
-<h2>References</h2>
-<p class="reference">[1] Walpole, H. (1754). Letters.</p>
-<p class="reference">[2] Britannica, Biology.</p>
-<p class="reference">[3] Science Journal.</p>
-<p class="reference">[4] Oxford Dictionary.</p>
-<p class="reference">[5] Stanford Encyclopedia of Philosophy.</p>
-<p class="reference">[6] American Museum of Natural History.</p>
-
-</div>
+    <div id="err"></div>
+  </div>
 
 <script>
-const DB_URL = "https://global-search-stats-default-rtdb.firebaseio.com/chosenWord.json";
+  const WORDS_URL = "words.json"; // keep in same folder
+  const PAGE_SIZE = 120;         // how many entries to render per "chunk" (infinite scroll)
+  let allWords = [];
+  let currentLetter = "P";
+  let currentBucket = null;      // e.g., "ph" (first two letters)
+  let renderedCount = 0;
+  let filtered = [];
 
-document.addEventListener("mouseup", () => {
-  const text = window.getSelection().toString().trim();
-  if (text.length >= 3 && text.length <= 200 && !text.includes(" ")) {
-    fetch(DB_URL, {
-      method: "PUT",
-      body: JSON.stringify(text)
-    });
+  function showLoader(on) {
+    document.getElementById("loader").style.display = on ? "block" : "none";
   }
-});
+
+  function setError(msg) {
+    const el = document.getElementById("err");
+    el.style.display = "block";
+    el.textContent = msg;
+  }
+
+  function clearError() {
+    const el = document.getElementById("err");
+    el.style.display = "none";
+    el.textContent = "";
+  }
+
+  function buildAlphaNav() {
+    const alpha = document.getElementById("alpha");
+    alpha.innerHTML = "";
+    for (let c = 65; c <= 90; c++) {
+      const L = String.fromCharCode(c);
+      const btn = document.createElement("button");
+      btn.textContent = L;
+      btn.onclick = () => goLetter(L);
+      if (L === currentLetter) btn.classList.add("active");
+      alpha.appendChild(btn);
+    }
+  }
+
+  function fakePageInfo(letter) {
+    // looks “institutional” but not verifiable
+    const vol = Math.max(1, Math.ceil((letter.charCodeAt(0) - 64) / 2));
+    const base = 100 + (letter.charCodeAt(0) - 65) * 60;
+    const p1 = base + 214;
+    const p2 = p1 + 5 + (letter.charCodeAt(0) % 7);
+    return `Oxford English Dictionary · Vol. ${vol} · pp. ${p1}–${p2}`;
+  }
+
+  function letterWords(letter) {
+    const l = letter.toLowerCase();
+    return allWords.filter(w => w.startsWith(l));
+  }
+
+  function buildSubranges(letterWordsList) {
+    // bucket by first 2 letters, e.g. "ph", "pi", "pl"
+    const buckets = new Map();
+    for (const w of letterWordsList) {
+      const k = (w.slice(0,2) || w).toLowerCase();
+      buckets.set(k, (buckets.get(k) || 0) + 1);
+    }
+
+    // choose up to 6 buckets with most entries (feels like realistic “ranges”)
+    const sorted = [...buckets.entries()].sort((a,b)=>b[1]-a[1]).slice(0, 6).map(x=>x[0]).sort();
+    if (sorted.length === 0) return [];
+
+    // make “Ph–Pl” style labels (approximate but plausible)
+    // We'll label as: ph–ph (if only one), or ph–pl (first to last)
+    return sorted;
+  }
+
+  function setSubrangeUI(bucketKeys) {
+    const el = document.getElementById("subranges");
+    el.innerHTML = "";
+
+    // If nothing, hide
+    if (!bucketKeys.length) {
+      el.style.display = "none";
+      return;
+    }
+    el.style.display = "block";
+
+    // Create pills for each 2-letter bucket
+    for (const k of bucketKeys) {
+      const btn = document.createElement("button");
+      btn.textContent = k.toUpperCase();
+      btn.onclick = () => goBucket(k);
+      if (k === currentBucket) btn.classList.add("active");
+      el.appendChild(btn);
+    }
+  }
+
+  function computeFiltered() {
+    const l = currentLetter.toLowerCase();
+    const q = document.getElementById("search").value.trim().toLowerCase();
+
+    let base = allWords.filter(w => w.startsWith(l));
+    if (currentBucket) base = base.filter(w => w.startsWith(currentBucket));
+
+    if (q.length >= 2) {
+      base = base.filter(w => w.includes(q));
+    }
+    return base;
+  }
+
+  function renderReset() {
+    filtered = computeFiltered();
+    renderedCount = 0;
+    document.getElementById("content").innerHTML = "";
+    renderMore();
+    updateHint();
+  }
+
+  function renderMore() {
+    const content = document.getElementById("content");
+    const slice = filtered.slice(renderedCount, renderedCount + PAGE_SIZE);
+    for (const w of slice) {
+      const div = document.createElement("div");
+      div.className = "entry";
+      div.innerHTML = `<b>${w}</b>`;
+      content.appendChild(div);
+    }
+    renderedCount += slice.length;
+  }
+
+  function updateHint() {
+    const hint = document.getElementById("hint");
+    const total = filtered.length;
+    if (!total) {
+      hint.textContent = "No results in this section.";
+      return;
+    }
+    const shown = Math.min(renderedCount, total);
+    hint.textContent = `Showing ${shown.toLocaleString()} of ${total.toLocaleString()} entries · Scroll to load more`;
+  }
+
+  function goLetter(letter) {
+    showLoader(true);
+    setTimeout(() => {
+      currentLetter = letter;
+      currentBucket = null;
+      document.getElementById("rangeTitle").textContent = letter; // IMPORTANT: not “letter section”
+      document.getElementById("pageInfo").textContent = fakePageInfo(letter);
+      buildAlphaNav();
+
+      const lw = letterWords(letter);
+      const bucketKeys = buildSubranges(lw);
+      setSubrangeUI(bucketKeys);
+
+      showLoader(false);
+      renderReset();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }, 450);
+  }
+
+  function goBucket(k) {
+    currentBucket = k;
+    // update pills active state
+    [...document.querySelectorAll("#subranges button")].forEach(b=>{
+      b.classList.toggle("active", b.textContent.toLowerCase() === k);
+    });
+    renderReset();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  // infinite scroll
+  window.addEventListener("scroll", () => {
+    const nearBottom = window.innerHeight + window.scrollY > document.body.offsetHeight - 800;
+    if (nearBottom && renderedCount < filtered.length) {
+      renderMore();
+      updateHint();
+    }
+  });
+
+  document.getElementById("search").addEventListener("input", () => {
+    renderReset();
+  });
+
+  async function init() {
+    clearError();
+    showLoader(true);
+    try {
+      const r = await fetch(WORDS_URL + "?v=" + Date.now()); // cache-bust for dev
+      if (!r.ok) throw new Error("HTTP " + r.status + " loading " + WORDS_URL);
+      const data = await r.json();
+
+      // sanitize
+      allWords = data
+        .map(x => String(x || "").trim().toLowerCase())
+        .filter(x => x.length >= 2 && x.length <= 40 && /^[a-z\-']+$/.test(x))
+        .sort();
+
+      buildAlphaNav();
+      document.getElementById("rangeTitle").textContent = currentLetter;
+      document.getElementById("pageInfo").textContent = fakePageInfo(currentLetter);
+
+      const lw = letterWords(currentLetter);
+      const bucketKeys = buildSubranges(lw);
+      setSubrangeUI(bucketKeys);
+
+      showLoader(false);
+      renderReset();
+    } catch (e) {
+      showLoader(false);
+      setError(
+`Failed to load words.json.
+
+Fix:
+• Use Live Server (http://127.0.0.1:5500) not file://
+• Ensure words.json is in the same folder as index.html
+• Check filename is exactly "words.json"
+
+Error:
+${e}`
+      );
+    }
+  }
+
+  init();
 </script>
 
 </body>
