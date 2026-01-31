@@ -58,11 +58,12 @@
   </div>
 
 <script>
-  const WORDS_URL = "words.json"; // keep in same folder
-  const PAGE_SIZE = 120;         // how many entries to render per "chunk" (infinite scroll)
+  const WORDS_URL = "words.json";
+  const PAGE_SIZE = 120;
+
   let allWords = [];
   let currentLetter = "P";
-  let currentBucket = null;      // e.g., "ph" (first two letters)
+  let currentBucket = null;
   let renderedCount = 0;
   let filtered = [];
 
@@ -96,7 +97,6 @@
   }
 
   function fakePageInfo(letter) {
-    // looks “institutional” but not verifiable
     const vol = Math.max(1, Math.ceil((letter.charCodeAt(0) - 64) / 2));
     const base = 100 + (letter.charCodeAt(0) - 65) * 60;
     const p1 = base + 214;
@@ -105,58 +105,47 @@
   }
 
   function letterWords(letter) {
-    const l = letter.toLowerCase();
-    return allWords.filter(w => w.startsWith(l));
+    return allWords.filter(w => w.startsWith(letter.toLowerCase()));
   }
 
-  function buildSubranges(letterWordsList) {
-    // bucket by first 2 letters, e.g. "ph", "pi", "pl"
+  function buildSubranges(list) {
     const buckets = new Map();
-    for (const w of letterWordsList) {
-      const k = (w.slice(0,2) || w).toLowerCase();
+    for (const w of list) {
+      const k = w.slice(0,2);
       buckets.set(k, (buckets.get(k) || 0) + 1);
     }
-
-    // choose up to 6 buckets with most entries (feels like realistic “ranges”)
-    const sorted = [...buckets.entries()].sort((a,b)=>b[1]-a[1]).slice(0, 6).map(x=>x[0]).sort();
-    if (sorted.length === 0) return [];
-
-    // make “Ph–Pl” style labels (approximate but plausible)
-    // We'll label as: ph–ph (if only one), or ph–pl (first to last)
-    return sorted;
+    return [...buckets.entries()]
+      .sort((a,b)=>b[1]-a[1])
+      .slice(0,6)
+      .map(x=>x[0])
+      .sort();
   }
 
-  function setSubrangeUI(bucketKeys) {
+  function setSubrangeUI(keys) {
     const el = document.getElementById("subranges");
     el.innerHTML = "";
-
-    // If nothing, hide
-    if (!bucketKeys.length) {
-      el.style.display = "none";
-      return;
-    }
-    el.style.display = "block";
-
-    // Create pills for each 2-letter bucket
-    for (const k of bucketKeys) {
-      const btn = document.createElement("button");
-      btn.textContent = k.toUpperCase();
-      btn.onclick = () => goBucket(k);
-      if (k === currentBucket) btn.classList.add("active");
-      el.appendChild(btn);
+    if (!keys.length) { el.style.display="none"; return; }
+    el.style.display="block";
+    for (const k of keys) {
+      const b = document.createElement("button");
+      b.textContent = k.toUpperCase();
+      b.onclick = () => goBucket(k);
+      if (k === currentBucket) b.classList.add("active");
+      el.appendChild(b);
     }
   }
 
   function computeFiltered() {
-    const l = currentLetter.toLowerCase();
-    const q = document.getElementById("search").value.trim().toLowerCase();
+    let base = allWords.filter(w => w.startsWith(currentLetter.toLowerCase()));
 
-    let base = allWords.filter(w => w.startsWith(l));
-    if (currentBucket) base = base.filter(w => w.startsWith(currentBucket));
-
-    if (q.length >= 2) {
-      base = base.filter(w => w.includes(q));
+    if (currentBucket) {
+      const narrowed = base.filter(w => w.startsWith(currentBucket));
+      if (narrowed.length) base = narrowed;
     }
+
+    const q = document.getElementById("search").value.trim().toLowerCase();
+    if (q.length >= 2) base = base.filter(w => w.includes(q));
+
     return base;
   }
 
@@ -169,107 +158,79 @@
   }
 
   function renderMore() {
-    const content = document.getElementById("content");
     const slice = filtered.slice(renderedCount, renderedCount + PAGE_SIZE);
+    const c = document.getElementById("content");
     for (const w of slice) {
-      const div = document.createElement("div");
-      div.className = "entry";
-      div.innerHTML = `<b>${w}</b>`;
-      content.appendChild(div);
+      const d = document.createElement("div");
+      d.className = "entry";
+      d.innerHTML = `<b>${w}</b>`;
+      c.appendChild(d);
     }
     renderedCount += slice.length;
   }
 
   function updateHint() {
-    const hint = document.getElementById("hint");
-    const total = filtered.length;
-    if (!total) {
-      hint.textContent = "No results in this section.";
+    const h = document.getElementById("hint");
+    if (!filtered.length) {
+      h.textContent = "No results in this section.";
       return;
     }
-    const shown = Math.min(renderedCount, total);
-    hint.textContent = `Showing ${shown.toLocaleString()} of ${total.toLocaleString()} entries · Scroll to load more`;
+    h.textContent = `Showing ${Math.min(renderedCount, filtered.length).toLocaleString()} of ${filtered.length.toLocaleString()} entries · Scroll to load more`;
   }
 
-  function goLetter(letter) {
+  function goLetter(L) {
     showLoader(true);
-    setTimeout(() => {
-      currentLetter = letter;
+    setTimeout(()=>{
+      currentLetter = L;
       currentBucket = null;
-      document.getElementById("rangeTitle").textContent = letter; // IMPORTANT: not “letter section”
-      document.getElementById("pageInfo").textContent = fakePageInfo(letter);
+      document.getElementById("rangeTitle").textContent = L;
+      document.getElementById("pageInfo").textContent = fakePageInfo(L);
       buildAlphaNav();
-
-      const lw = letterWords(letter);
-      const bucketKeys = buildSubranges(lw);
-      setSubrangeUI(bucketKeys);
-
+      setSubrangeUI(buildSubranges(letterWords(L)));
       showLoader(false);
       renderReset();
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }, 450);
+      window.scrollTo({top:0});
+    },400);
   }
 
   function goBucket(k) {
     currentBucket = k;
-    // update pills active state
-    [...document.querySelectorAll("#subranges button")].forEach(b=>{
-      b.classList.toggle("active", b.textContent.toLowerCase() === k);
+    document.querySelectorAll(".subranges button").forEach(b=>{
+      b.classList.toggle("active", b.textContent.toLowerCase()===k);
     });
     renderReset();
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo({top:0});
   }
 
-  // infinite scroll
-  window.addEventListener("scroll", () => {
-    const nearBottom = window.innerHeight + window.scrollY > document.body.offsetHeight - 800;
-    if (nearBottom && renderedCount < filtered.length) {
+  window.addEventListener("scroll", ()=>{
+    if (window.innerHeight + window.scrollY > document.body.offsetHeight - 800 &&
+        renderedCount < filtered.length) {
       renderMore();
       updateHint();
     }
   });
 
-  document.getElementById("search").addEventListener("input", () => {
-    renderReset();
-  });
+  document.getElementById("search").addEventListener("input", renderReset);
 
   async function init() {
-    clearError();
     showLoader(true);
     try {
-      const r = await fetch(WORDS_URL + "?v=" + Date.now()); // cache-bust for dev
-      if (!r.ok) throw new Error("HTTP " + r.status + " loading " + WORDS_URL);
-      const data = await r.json();
-
-      // sanitize
-      allWords = data
-        .map(x => String(x || "").trim().toLowerCase())
-        .filter(x => x.length >= 2 && x.length <= 40 && /^[a-z\-']+$/.test(x))
+      const r = await fetch(WORDS_URL + "?v=" + Date.now());
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      allWords = (await r.json())
+        .map(w=>String(w).toLowerCase().trim())
+        .filter(w=>w.length>=2 && /^[a-z\-']+$/.test(w))
         .sort();
 
       buildAlphaNav();
       document.getElementById("rangeTitle").textContent = currentLetter;
       document.getElementById("pageInfo").textContent = fakePageInfo(currentLetter);
-
-      const lw = letterWords(currentLetter);
-      const bucketKeys = buildSubranges(lw);
-      setSubrangeUI(bucketKeys);
-
+      setSubrangeUI(buildSubranges(letterWords(currentLetter)));
       showLoader(false);
       renderReset();
-    } catch (e) {
+    } catch(e) {
       showLoader(false);
-      setError(
-`Failed to load words.json.
-
-Fix:
-• Use Live Server (http://127.0.0.1:5500) not file://
-• Ensure words.json is in the same folder as index.html
-• Check filename is exactly "words.json"
-
-Error:
-${e}`
-      );
+      setError(e.toString());
     }
   }
 
