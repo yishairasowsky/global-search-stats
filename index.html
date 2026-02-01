@@ -2,239 +2,216 @@
 <html>
 <head>
   <meta charset="UTF-8" />
-  <title>Oxford Reference</title>
+  <title>Oxford English Dictionary</title>
 
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
 
   <style>
-    body { font-family: Georgia, serif; margin:0; background:#f2f2f2; }
-    .topbar { background:#002147; color:#fff; padding:10px 18px; font-size:18px; display:flex; justify-content:space-between; align-items:center; }
-    .topbar input { width:260px; padding:6px 8px; font-size:14px; border-radius:4px; border:0; }
-    .nav { background:#e0e0e0; padding:7px 18px; font-size:13px; color:#333; }
-    .wrap { max-width:1100px; margin:18px auto; background:#fff; box-shadow:0 2px 6px rgba(0,0,0,.12); padding:18px 22px; }
-    .alpha { text-align:center; margin-bottom:12px; }
-    .alpha button { border:0; background:transparent; color:#002147; font-weight:700; cursor:pointer; padding:2px 6px; font-size:14px; }
-    .alpha button.active { text-decoration: underline; }
-    .meta { display:flex; justify-content:space-between; align-items:flex-end; gap:12px; margin:6px 0 12px; }
-    .rangeTitle { font-size:22px; font-weight:800; }
-    .pageInfo { font-size:12px; color:#666; }
-    .subranges { margin:6px 0 14px; font-size:12px; color:#666; }
-    .subranges button { border:1px solid #ddd; background:#fafafa; padding:4px 8px; border-radius:999px; margin-right:6px; cursor:pointer; font-size:12px; }
-    .subranges button.active { border-color:#002147; color:#002147; background:#f4f7ff; }
-    .cols { column-count:2; column-gap:40px; font-size:15px; line-height:1.25; }
-    .entry { break-inside: avoid; margin:0 0 5px; }
-    .entry b { font-weight:800; }
-    #loader { display:none; position:fixed; inset:0; background:#fff; z-index:9999; text-align:center; padding-top:200px; font-size:22px; }
-    #err { color:#a00; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size:13px; white-space:pre-wrap; display:none; margin-top:10px; }
-    .hint { font-size:12px; color:#777; margin-top:10px; column-span: all; }
+    body {
+      font-family: Georgia, serif;
+      margin: 0;
+      background: #f2f2f2;
+    }
+
+    .topbar {
+      background: #002147;
+      color: #fff;
+      padding: 12px 20px;
+      font-size: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .topbar input {
+      width: 280px;
+      padding: 7px 10px;
+      font-size: 14px;
+      border-radius: 4px;
+      border: 0;
+    }
+
+    .nav {
+      background: #e6e6e6;
+      padding: 8px 20px;
+      font-size: 14px;
+      color: #333;
+    }
+
+    .wrap {
+      max-width: 1100px;
+      margin: 22px auto;
+      background: #fff;
+      padding: 24px 26px;
+      box-shadow: 0 2px 6px rgba(0,0,0,.12);
+    }
+
+    .alpha {
+      text-align: center;
+      margin-bottom: 18px;
+    }
+
+    .alpha button {
+      border: 0;
+      background: transparent;
+      color: #002147;
+      font-weight: 700;
+      cursor: pointer;
+      padding: 3px 6px;
+      font-size: 15px;
+    }
+
+    .alpha button.active {
+      text-decoration: underline;
+    }
+
+    .meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 14px;
+    }
+
+    .letterTitle {
+      font-size: 34px;
+      font-weight: 800;
+    }
+
+    .pageInfo {
+      font-size: 13px;
+      color: #666;
+    }
+
+    .cols {
+      column-count: 2;
+      column-gap: 44px;
+      font-size: 16px;
+      line-height: 1.3;
+    }
+
+    .entry {
+      break-inside: avoid;
+      margin-bottom: 6px;
+      font-weight: 700;
+    }
+
+    .hint {
+      margin-top: 14px;
+      font-size: 12px;
+      color: #777;
+      column-span: all;
+    }
+
+    #loader {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: #fff;
+      z-index: 9999;
+      text-align: center;
+      padding-top: 220px;
+      font-size: 22px;
+    }
   </style>
 </head>
 
 <body>
-  <div id="loader">Loading lexical dataset…</div>
 
-  <div class="topbar">
-    <div><b>Oxford Reference</b></div>
-    <input id="search" placeholder="Search Oxford Reference…" autocomplete="off" />
+<div id="loader">Loading dictionary pages…</div>
+
+<div class="topbar">
+  <div><b>Oxford English Dictionary</b></div>
+  <input placeholder="Search the dictionary…" />
+</div>
+
+<div class="nav">
+  Home · Dictionaries · Encyclopedias · Subjects · Browse A–Z
+</div>
+
+<div class="wrap">
+  <div class="alpha" id="alpha"></div>
+
+  <div class="meta">
+    <div class="letterTitle" id="letterTitle">A</div>
+    <div class="pageInfo" id="pageInfo"></div>
   </div>
-  <div class="nav">Home · Dictionaries · Encyclopedias · Subjects · Browse A–Z</div>
 
-  <div class="wrap">
-    <div class="alpha" id="alpha"></div>
-
-    <div class="meta">
-      <div class="rangeTitle" id="rangeTitle">…</div>
-      <div class="pageInfo" id="pageInfo">…</div>
-    </div>
-
-    <div class="subranges" id="subranges"></div>
-
-    <div class="cols" id="content"></div>
-    <div class="hint" id="hint"></div>
-
-    <div id="err"></div>
-  </div>
+  <div class="cols" id="content"></div>
+  <div class="hint" id="hint"></div>
+</div>
 
 <script>
-  const WORDS_URL = "words.json";
-  const PAGE_SIZE = 120;
+const WORDS_URL = "words.json";
+const PAGE_SIZE = 140;
 
-  let allWords = [];
-  let currentLetter = "P";
-  let currentBucket = null;
-  let renderedCount = 0;
-  let filtered = [];
+let allWords = [];
+let currentLetter = "A";
+let filtered = [];
+let rendered = 0;
 
-  function showLoader(on) {
-    document.getElementById("loader").style.display = on ? "block" : "none";
+function fakePageInfo(letter) {
+  const vol = Math.max(1, Math.ceil((letter.charCodeAt(0) - 64) / 2));
+  const base = 300 + (letter.charCodeAt(0) - 65) * 65;
+  return `Oxford English Dictionary · Vol. ${vol} · pp. ${base}–${base + 6}`;
+}
+
+function buildAlpha() {
+  const a = document.getElementById("alpha");
+  a.innerHTML = "";
+  for (let c = 65; c <= 90; c++) {
+    const L = String.fromCharCode(c);
+    const b = document.createElement("button");
+    b.textContent = L;
+    if (L === currentLetter) b.classList.add("active");
+    b.onclick = () => goLetter(L);
+    a.appendChild(b);
   }
+}
 
-  function setError(msg) {
-    const el = document.getElementById("err");
-    el.style.display = "block";
-    el.textContent = msg;
-  }
+function goLetter(L) {
+  currentLetter = L;
+  document.getElementById("letterTitle").textContent = L;
+  document.getElementById("pageInfo").textContent = fakePageInfo(L);
+  buildAlpha();
+  filtered = allWords.filter(w => w.startsWith(L.toLowerCase()));
+  rendered = 0;
+  document.getElementById("content").innerHTML = "";
+  renderMore();
+  window.scrollTo({ top: 0 });
+}
 
-  function clearError() {
-    const el = document.getElementById("err");
-    el.style.display = "none";
-    el.textContent = "";
-  }
-
-  function buildAlphaNav() {
-    const alpha = document.getElementById("alpha");
-    alpha.innerHTML = "";
-    for (let c = 65; c <= 90; c++) {
-      const L = String.fromCharCode(c);
-      const btn = document.createElement("button");
-      btn.textContent = L;
-      btn.onclick = () => goLetter(L);
-      if (L === currentLetter) btn.classList.add("active");
-      alpha.appendChild(btn);
-    }
-  }
-
-  function fakePageInfo(letter) {
-    const vol = Math.max(1, Math.ceil((letter.charCodeAt(0) - 64) / 2));
-    const base = 100 + (letter.charCodeAt(0) - 65) * 60;
-    const p1 = base + 214;
-    const p2 = p1 + 5 + (letter.charCodeAt(0) % 7);
-    return `Oxford English Dictionary · Vol. ${vol} · pp. ${p1}–${p2}`;
-  }
-
-  function letterWords(letter) {
-    return allWords.filter(w => w.startsWith(letter.toLowerCase()));
-  }
-
-  function buildSubranges(list) {
-    const buckets = new Map();
-    for (const w of list) {
-      const k = w.slice(0,2);
-      buckets.set(k, (buckets.get(k) || 0) + 1);
-    }
-    return [...buckets.entries()]
-      .sort((a,b)=>b[1]-a[1])
-      .slice(0,6)
-      .map(x=>x[0])
-      .sort();
-  }
-
-  function setSubrangeUI(keys) {
-    const el = document.getElementById("subranges");
-    el.innerHTML = "";
-    if (!keys.length) { el.style.display="none"; return; }
-    el.style.display="block";
-    for (const k of keys) {
-      const b = document.createElement("button");
-      b.textContent = k.toUpperCase();
-      b.onclick = () => goBucket(k);
-      if (k === currentBucket) b.classList.add("active");
-      el.appendChild(b);
-    }
-  }
-
-  function computeFiltered() {
-    let base = allWords.filter(w => w.startsWith(currentLetter.toLowerCase()));
-
-    if (currentBucket) {
-      const narrowed = base.filter(w => w.startsWith(currentBucket));
-      if (narrowed.length) base = narrowed;
-    }
-
-    const q = document.getElementById("search").value.trim().toLowerCase();
-    if (q.length >= 2) base = base.filter(w => w.includes(q));
-
-    return base;
-  }
-
-  function renderReset() {
-    filtered = computeFiltered();
-    renderedCount = 0;
-    document.getElementById("content").innerHTML = "";
-    renderMore();
-    updateHint();
-  }
-
-  function renderMore() {
-    const slice = filtered.slice(renderedCount, renderedCount + PAGE_SIZE);
-    const c = document.getElementById("content");
-    for (const w of slice) {
-      const d = document.createElement("div");
-      d.className = "entry";
-      d.innerHTML = `<b>${w}</b>`;
-      c.appendChild(d);
-    }
-    renderedCount += slice.length;
-  }
-
-  function updateHint() {
-    const h = document.getElementById("hint");
-    if (!filtered.length) {
-      h.textContent = "No results in this section.";
-      return;
-    }
-    h.textContent = `Showing ${Math.min(renderedCount, filtered.length).toLocaleString()} of ${filtered.length.toLocaleString()} entries · Scroll to load more`;
-  }
-
-  function goLetter(L) {
-    showLoader(true);
-    setTimeout(()=>{
-      currentLetter = L;
-      currentBucket = null;
-      document.getElementById("rangeTitle").textContent = L;
-      document.getElementById("pageInfo").textContent = fakePageInfo(L);
-      buildAlphaNav();
-      setSubrangeUI(buildSubranges(letterWords(L)));
-      showLoader(false);
-      renderReset();
-      window.scrollTo({top:0});
-    },400);
-  }
-
-  function goBucket(k) {
-    currentBucket = k;
-    document.querySelectorAll(".subranges button").forEach(b=>{
-      b.classList.toggle("active", b.textContent.toLowerCase()===k);
-    });
-    renderReset();
-    window.scrollTo({top:0});
-  }
-
-  window.addEventListener("scroll", ()=>{
-    if (window.innerHeight + window.scrollY > document.body.offsetHeight - 800 &&
-        renderedCount < filtered.length) {
-      renderMore();
-      updateHint();
-    }
+function renderMore() {
+  const slice = filtered.slice(rendered, rendered + PAGE_SIZE);
+  const c = document.getElementById("content");
+  slice.forEach(w => {
+    const d = document.createElement("div");
+    d.className = "entry";
+    d.textContent = w;
+    c.appendChild(d);
   });
+  rendered += slice.length;
+  document.getElementById("hint").textContent =
+    `Showing ${rendered.toLocaleString()} of ${filtered.length.toLocaleString()} entries · Scroll to continue`;
+}
 
-  document.getElementById("search").addEventListener("input", renderReset);
-
-  async function init() {
-    showLoader(true);
-    try {
-      const r = await fetch(WORDS_URL + "?v=" + Date.now());
-      if (!r.ok) throw new Error("HTTP " + r.status);
-      allWords = (await r.json())
-        .map(w=>String(w).toLowerCase().trim())
-        .filter(w=>w.length>=2 && /^[a-z\-']+$/.test(w))
-        .sort();
-
-      buildAlphaNav();
-      document.getElementById("rangeTitle").textContent = currentLetter;
-      document.getElementById("pageInfo").textContent = fakePageInfo(currentLetter);
-      setSubrangeUI(buildSubranges(letterWords(currentLetter)));
-      showLoader(false);
-      renderReset();
-    } catch(e) {
-      showLoader(false);
-      setError(e.toString());
-    }
+window.addEventListener("scroll", () => {
+  if (window.innerHeight + window.scrollY > document.body.offsetHeight - 700) {
+    if (rendered < filtered.length) renderMore();
   }
+});
 
-  init();
+async function init() {
+  document.getElementById("loader").style.display = "block";
+  const r = await fetch(WORDS_URL);
+  allWords = (await r.json()).sort();
+  document.getElementById("loader").style.display = "none";
+  buildAlpha();
+  goLetter(currentLetter);
+}
+
+init();
 </script>
 
 </body>
