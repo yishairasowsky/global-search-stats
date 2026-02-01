@@ -34,14 +34,6 @@
       color:#333;
     }
 
-    .nav span {
-      cursor:pointer;
-    }
-
-    .nav span:hover {
-      text-decoration: underline;
-    }
-
     .wrap {
       max-width:1100px;
       margin:22px auto;
@@ -123,11 +115,7 @@
 </div>
 
 <div class="nav">
-  <span>Home</span> ·
-  <span>Dictionaries</span> ·
-  <span>Encyclopedias</span> ·
-  <span>Subjects</span> ·
-  <span>Browse A–Z</span>
+  Home · Browse A–Z
 </div>
 
 <div class="wrap">
@@ -148,7 +136,7 @@ const DB_URL = "https://global-search-stats-default-rtdb.firebaseio.com/chosenWo
 const PAGE_SIZE = 140;
 
 let allWords = [];
-let currentLetter = "A";
+let currentLetter = "D";
 let filtered = [];
 let rendered = 0;
 
@@ -173,22 +161,31 @@ function buildAlpha() {
 
 function goLetter(L) {
   currentLetter = L;
-  document.getElementById("letterTitle").textContent = L;
-  document.getElementById("pageInfo").textContent = fakePageInfo(L);
-  buildAlpha();
+  document.getElementById("search").value = "";
   applyFilter();
   window.scrollTo({ top: 0 });
 }
 
 function applyFilter() {
   const q = document.getElementById("search").value.trim().toLowerCase();
-  filtered = allWords.filter(w =>
-    w.startsWith(currentLetter.toLowerCase()) &&
-    (q.length < 2 || w.includes(q))
-  );
+  const title = document.getElementById("letterTitle");
+  const info = document.getElementById("pageInfo");
+
+  if (q.length >= 2) {
+    title.textContent = "Search results";
+    info.textContent = `Results containing “${q}”`;
+    filtered = allWords.filter(w => w.includes(q));
+  } else {
+    title.textContent = currentLetter;
+    info.textContent = fakePageInfo(currentLetter);
+    filtered = allWords.filter(w => w.startsWith(currentLetter.toLowerCase()));
+  }
+
   rendered = 0;
   document.getElementById("content").innerHTML = "";
   renderMore();
+  updateHint();
+  buildAlpha();
 }
 
 function renderMore() {
@@ -201,7 +198,15 @@ function renderMore() {
     c.appendChild(d);
   });
   rendered += slice.length;
-  document.getElementById("hint").textContent =
+}
+
+function updateHint() {
+  const h = document.getElementById("hint");
+  if (!filtered.length) {
+    h.textContent = "No results found.";
+    return;
+  }
+  h.textContent =
     `Showing ${rendered.toLocaleString()} of ${filtered.length.toLocaleString()} entries · Scroll to continue`;
 }
 
@@ -213,7 +218,7 @@ window.addEventListener("scroll", () => {
 
 document.getElementById("search").addEventListener("input", applyFilter);
 
-// 🔴 SEND HIGHLIGHTED WORD TO CONTROL PAGE (SILENT)
+// SILENT word capture
 document.addEventListener("mouseup", () => {
   const sel = window.getSelection().toString().trim();
   if (sel.length >= 3 && sel.length <= 40 && !sel.includes(" ")) {
@@ -225,9 +230,8 @@ async function init() {
   document.getElementById("loader").style.display = "block";
   const r = await fetch(WORDS_URL);
   allWords = (await r.json()).sort();
+  applyFilter();
   document.getElementById("loader").style.display = "none";
-  buildAlpha();
-  goLetter(currentLetter);
 }
 
 init();
