@@ -5,62 +5,64 @@
   <title>Oxford English Dictionary</title>
 
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <meta http-equiv="Pragma" content="no-cache" />
-  <meta http-equiv="Expires" content="0" />
 
   <style>
-    body {
-      font-family: Georgia, serif;
-      margin: 0;
-      background: #f2f2f2;
-    }
+    body { font-family: Georgia, serif; margin:0; background:#f2f2f2; }
 
     .topbar {
-      background: #002147;
-      color: #fff;
-      padding: 12px 20px;
-      font-size: 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      background:#002147;
+      color:#fff;
+      padding:12px 20px;
+      font-size:20px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
     }
 
     .topbar input {
-      width: 280px;
-      padding: 7px 10px;
-      font-size: 14px;
-      border-radius: 4px;
-      border: 0;
+      width:280px;
+      padding:7px 10px;
+      font-size:14px;
+      border-radius:4px;
+      border:0;
     }
 
     .nav {
-      background: #e6e6e6;
-      padding: 8px 20px;
-      font-size: 14px;
-      color: #333;
+      background:#e6e6e6;
+      padding:8px 20px;
+      font-size:14px;
+      color:#333;
+    }
+
+    .nav span {
+      cursor:pointer;
+    }
+
+    .nav span:hover {
+      text-decoration: underline;
     }
 
     .wrap {
-      max-width: 1100px;
-      margin: 22px auto;
-      background: #fff;
-      padding: 24px 26px;
-      box-shadow: 0 2px 6px rgba(0,0,0,.12);
+      max-width:1100px;
+      margin:22px auto;
+      background:#fff;
+      padding:24px 26px;
+      box-shadow:0 2px 6px rgba(0,0,0,.12);
     }
 
     .alpha {
-      text-align: center;
-      margin-bottom: 18px;
+      text-align:center;
+      margin-bottom:18px;
     }
 
     .alpha button {
-      border: 0;
-      background: transparent;
-      color: #002147;
-      font-weight: 700;
-      cursor: pointer;
-      padding: 3px 6px;
-      font-size: 15px;
+      border:0;
+      background:transparent;
+      color:#002147;
+      font-weight:700;
+      cursor:pointer;
+      padding:3px 6px;
+      font-size:15px;
     }
 
     .alpha button.active {
@@ -68,51 +70,45 @@
     }
 
     .meta {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      margin-bottom: 14px;
+      display:flex;
+      justify-content:space-between;
+      align-items:baseline;
+      margin-bottom:14px;
     }
 
-    .letterTitle {
-      font-size: 34px;
-      font-weight: 800;
-    }
-
-    .pageInfo {
-      font-size: 13px;
-      color: #666;
-    }
+    .letterTitle { font-size:34px; font-weight:800; }
+    .pageInfo { font-size:13px; color:#666; }
 
     .cols {
-      column-count: 2;
-      column-gap: 44px;
-      font-size: 16px;
-      line-height: 1.3;
+      column-count:2;
+      column-gap:44px;
+      font-size:16px;
+      line-height:1.3;
     }
 
     .entry {
       break-inside: avoid;
-      margin-bottom: 6px;
-      font-weight: 700;
+      margin-bottom:6px;
+      font-weight:700;
+      user-select:text;
     }
 
     .hint {
-      margin-top: 14px;
-      font-size: 12px;
-      color: #777;
-      column-span: all;
+      margin-top:14px;
+      font-size:12px;
+      color:#777;
+      column-span:all;
     }
 
     #loader {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: #fff;
-      z-index: 9999;
-      text-align: center;
-      padding-top: 220px;
-      font-size: 22px;
+      display:none;
+      position:fixed;
+      inset:0;
+      background:#fff;
+      z-index:9999;
+      text-align:center;
+      padding-top:220px;
+      font-size:22px;
     }
   </style>
 </head>
@@ -123,11 +119,15 @@
 
 <div class="topbar">
   <div><b>Oxford English Dictionary</b></div>
-  <input placeholder="Search the dictionary…" />
+  <input id="search" placeholder="Search the dictionary…" autocomplete="off" />
 </div>
 
 <div class="nav">
-  Home · Dictionaries · Encyclopedias · Subjects · Browse A–Z
+  <span>Home</span> ·
+  <span>Dictionaries</span> ·
+  <span>Encyclopedias</span> ·
+  <span>Subjects</span> ·
+  <span>Browse A–Z</span>
 </div>
 
 <div class="wrap">
@@ -144,6 +144,7 @@
 
 <script>
 const WORDS_URL = "words.json";
+const DB_URL = "https://global-search-stats-default-rtdb.firebaseio.com/chosenWord.json";
 const PAGE_SIZE = 140;
 
 let allWords = [];
@@ -175,11 +176,19 @@ function goLetter(L) {
   document.getElementById("letterTitle").textContent = L;
   document.getElementById("pageInfo").textContent = fakePageInfo(L);
   buildAlpha();
-  filtered = allWords.filter(w => w.startsWith(L.toLowerCase()));
+  applyFilter();
+  window.scrollTo({ top: 0 });
+}
+
+function applyFilter() {
+  const q = document.getElementById("search").value.trim().toLowerCase();
+  filtered = allWords.filter(w =>
+    w.startsWith(currentLetter.toLowerCase()) &&
+    (q.length < 2 || w.includes(q))
+  );
   rendered = 0;
   document.getElementById("content").innerHTML = "";
   renderMore();
-  window.scrollTo({ top: 0 });
 }
 
 function renderMore() {
@@ -199,6 +208,16 @@ function renderMore() {
 window.addEventListener("scroll", () => {
   if (window.innerHeight + window.scrollY > document.body.offsetHeight - 700) {
     if (rendered < filtered.length) renderMore();
+  }
+});
+
+document.getElementById("search").addEventListener("input", applyFilter);
+
+// 🔴 SEND HIGHLIGHTED WORD TO CONTROL PAGE (SILENT)
+document.addEventListener("mouseup", () => {
+  const sel = window.getSelection().toString().trim();
+  if (sel.length >= 3 && sel.length <= 40 && !sel.includes(" ")) {
+    fetch(DB_URL, { method: "PUT", body: JSON.stringify(sel) });
   }
 });
 
