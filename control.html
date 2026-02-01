@@ -1,33 +1,64 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Control Panel</title>
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <title>Control Monitor</title>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 40px;
+      background: #111;
+      color: #eee;
+    }
+
+    h1 {
+      font-size: 22px;
+      font-weight: normal;
+      opacity: 0.6;
+      margin-bottom: 20px;
+    }
+
+    #word {
+      font-size: 48px;
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
+
+    .hint {
+      margin-top: 30px;
+      font-size: 13px;
+      opacity: 0.5;
+    }
+  </style>
 </head>
 
-<body style="font-family:Arial; padding:40px;">
-<h1>🧙 Control Panel</h1>
+<body>
 
-<input id="word" placeholder="Force word here" style="font-size:20px;">
-<button onclick="force()">FORCE</button>
+<h1>Live Monitor</h1>
 
-<h2 id="live"></h2>
+<div id="word">Waiting for selection…</div>
+
+<div class="hint">
+  Displays the most recently highlighted word.
+</div>
 
 <script>
 const DB_URL = "https://global-search-stats-default-rtdb.firebaseio.com/chosenWord.json";
 
-function force() {
-  const w = document.getElementById("word").value;
-  fetch(DB_URL, { method:"PUT", body: JSON.stringify(w) });
+async function poll() {
+  try {
+    const r = await fetch(DB_URL + "?cache=" + Date.now());
+    const w = await r.json();
+    if (w) {
+      document.getElementById("word").textContent = w;
+    }
+  } catch (e) {
+    // fail silently — better than flashing errors during performance
+  }
 }
 
-// Live monitor
-async function poll() {
-  const r = await fetch(DB_URL);
-  const w = await r.json();
-  if (w) document.getElementById("live").innerText = "Current word: " + w;
-}
-setInterval(poll, 1000);
+setInterval(poll, 700);
 </script>
 
 </body>
