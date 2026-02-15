@@ -1,56 +1,88 @@
 /**
- * Generates a dictionary-realistic dataset:
- * - Even coverage across A–Z
- * - Even coverage across the FULL alphabetical range per letter
- * - No bucket UI needed
+ * Generate a REALISTIC dictionary dataset:
+ * - Uses a high-quality frequency list
+ * - Filters common but interesting words
+ * - Balanced across A–Z
  */
+const RARE_LETTERS = new Set(["k", "q", "x", "y", "z"]);
+
+const RARE_MIN_LEN = 5;
+const NORMAL_MIN_LEN = 6;
+
+const RARE_FREQ_BOOST = 12000; // reach a bit deeper for rare letters
 
 const fs = require("fs");
 
-const INPUT_FILE = "words.txt";
+const INPUT_WORDS = "words.txt";           
+const FREQUENCY_FILE = "word_frequency.txt"; 
 const OUTPUT_FILE = "words.json";
 
-const PER_LETTER_LIMIT = 2600;
-const SLICES = 10; // how many alphabetical slices per letter
+// Frequency bounds
+const MIN_FREQ_INDEX = 50;   // skip super-common function words
+const MAX_FREQ_INDEX = 9000; // include only top ~9000
 
-const raw = fs.readFileSync(INPUT_FILE, "utf8")
+const PER_LETTER_LIMIT = 1800;
+
+// Words to ignore (basic stopwords)
+const STOPWORDS = new Set([
+  "the", "and", "for", "with", "that", "this", "from", "which",
+  "not", "but", "are", "was", "were", "have", "has", "had"
+]);
+
+// Read our raw dictionary
+const rawWords = new Set(
+  fs.readFileSync(INPUT_WORDS, "utf8")
+    .split(/\r?\n/)
+    .map(w => w.trim().toLowerCase())
+    .filter(w => /^[a-z]+$/.test(w))
+);
+
+// Load frequency list
+const freqWords = fs.readFileSync(FREQUENCY_FILE, "utf8")
   .split(/\r?\n/)
-  .map(w => w.trim().toLowerCase())
-  .filter(w =>
-    w.length >= 5 &&
-    w.length <= 40 &&
-    /^[a-z][a-z\-']+$/.test(w)
+  .map(w => w.trim().toLowerCase());
+
+// Filter for presence in raw dictionary, reasonable length
+const filtered = freqWords.filter((w, i) => {
+  if (!rawWords.has(w)) return false;
+  if (STOPWORDS.has(w)) return false;
+
+  const first = w[0];
+  const isRare = RARE_LETTERS.has(first);
+
+  const maxIndex = isRare
+    ? MAX_FREQ_INDEX + RARE_FREQ_BOOST
+    : MAX_FREQ_INDEX;
+
+  const minLen = isRare
+    ? RARE_MIN_LEN
+    : NORMAL_MIN_LEN;
+
+  return (
+    i >= MIN_FREQ_INDEX &&
+    i <= maxIndex &&
+    w.length >= minLen &&
+    w.length <= 11
   );
+});
 
-const byLetter = {};
+// Bucket by first letter
+const buckets = {};
 for (let c = 97; c <= 122; c++) {
-  byLetter[String.fromCharCode(c)] = [];
+  buckets[String.fromCharCode(c)] = [];
 }
 
-for (const w of raw) {
+for (const w of filtered) {
   const l = w[0];
-  if (byLetter[l]) byLetter[l].push(w);
-}
-
-const finalWords = [];
-
-for (const letter of Object.keys(byLetter)) {
-  const words = byLetter[letter].sort();
-  if (!words.length) continue;
-
-  const sliceSize = Math.ceil(words.length / SLICES);
-  const perSlice = Math.floor(PER_LETTER_LIMIT / SLICES);
-
-  let collected = [];
-
-  for (let i = 0; i < SLICES; i++) {
-    const start = i * sliceSize;
-    const slice = words.slice(start, start + sliceSize);
-    collected.push(...slice.slice(0, perSlice));
+  if (buckets[l] && buckets[l].length < PER_LETTER_LIMIT) {
+    buckets[l].push(w);
   }
-
-  finalWords.push(...collected.sort());
 }
+
+// Flatten sorted
+const finalWords = Object.keys(buckets)
+  .sort()
+  .flatMap(l => buckets[l].sort());
 
 fs.writeFileSync(
   OUTPUT_FILE,
@@ -58,5 +90,6 @@ fs.writeFileSync(
   "utf8"
 );
 
-console.log("✅ Dictionary dataset generated");
+console.log("✔ Dictionary dataset generated!");
 console.log("Total words:", finalWords.length);
+console.log("Used freq range:", MIN_FREQ_INDEX, "to", MAX_FREQ_INDEX);

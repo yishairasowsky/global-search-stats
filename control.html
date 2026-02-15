@@ -3,7 +3,6 @@
 <head>
   <title>Control Monitor</title>
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -11,54 +10,61 @@
       background: #111;
       color: #eee;
     }
-
-    h1 {
-      font-size: 22px;
-      font-weight: normal;
-      opacity: 0.6;
-      margin-bottom: 20px;
+    h1 { font-size: 24px; }
+    .label { opacity: 0.5; margin-top: 24px; }
+    .value { font-size: 34px; font-weight: bold; }
+    #viewport {
+      margin-top: 24px;
+      height: 6px;
+      background: #333;
+      position: relative;
     }
-
-    #word {
-      font-size: 48px;
-      font-weight: bold;
-      letter-spacing: 1px;
-    }
-
-    .hint {
-      margin-top: 30px;
-      font-size: 13px;
-      opacity: 0.5;
+    #marker {
+      position: absolute;
+      height: 6px;
+      width: 40px;
+      background: #fff;
     }
   </style>
 </head>
-
 <body>
 
-<h1>Live Monitor</h1>
+<h1>Live Spectator Monitor</h1>
 
-<div id="word">Waiting for selection…</div>
+<div class="label">Hovering word</div>
+<div id="hover" class="value">—</div>
 
-<div class="hint">
-  Displays the most recently highlighted word.
+<div class="label">Highlighted text</div>
+<div id="highlighted" class="value">—</div>
+
+<div class="label">Scroll position</div>
+<div id="viewport">
+  <div id="marker"></div>
 </div>
 
 <script>
-const DB_URL = "https://global-search-stats-default-rtdb.firebaseio.com/chosenWord.json";
+const DB_URL = "https://global-search-stats-default-rtdb.firebaseio.com/state.json";
 
 async function poll() {
   try {
     const r = await fetch(DB_URL + "?cache=" + Date.now());
-    const w = await r.json();
-    if (w) {
-      document.getElementById("word").textContent = w;
+    const s = await r.json();
+    if (!s) return;
+
+    if (s.hover) {
+      document.getElementById("hover").textContent = s.hover;
     }
-  } catch (e) {
-    // fail silently — better than flashing errors during performance
-  }
+    if (s.highlighted) {
+      document.getElementById("highlighted").textContent = s.highlighted;
+    }
+    if (typeof s.scroll === "number") {
+      const marker = document.getElementById("marker");
+      marker.style.left = Math.min(300, s.scroll / 10) + "px";
+    }
+  } catch {}
 }
 
-setInterval(poll, 700);
+setInterval(poll, 150);
 </script>
 
 </body>

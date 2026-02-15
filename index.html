@@ -85,6 +85,10 @@
       user-select:text;
     }
 
+    .entry:not([data-def]):hover::after {
+      display: none;
+    }
+
     .hint {
       margin-top:14px;
       font-size:12px;
@@ -102,6 +106,27 @@
       padding-top:220px;
       font-size:22px;
     }
+
+    .entry {
+      position: relative;
+    }
+
+    .entry:hover::after {
+      content: attr(data-def);
+      position: absolute;
+      left: 0;
+      top: 100%;
+      background: #fff;
+      border: 1px solid #ccc;
+      padding: 6px 8px;
+      font-size: 13px;
+      font-weight: normal;
+      color: #333;
+      width: 260px;
+      box-shadow: 0 2px 6px rgba(0,0,0,.15);
+      z-index: 10;
+    }
+
   </style>
 </head>
 
@@ -132,7 +157,7 @@
 
 <script>
 const WORDS_URL = "words.json";
-const DB_URL = "https://global-search-stats-default-rtdb.firebaseio.com/chosenWord.json";
+const DB_URL = "https://global-search-stats-default-rtdb.firebaseio.com/state.json";
 const PAGE_SIZE = 140;
 
 let allWords = [];
@@ -140,6 +165,19 @@ let currentLetter = "D";
 let filtered = [];
 let rendered = 0;
 
+// ---------- Firebase sender (PUT, not PATCH) ----------
+function sendState(update) {
+  fetch(DB_URL, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      ...update,
+      ts: Date.now()
+    })
+  }).catch(()=>{});
+}
+
+// ---------- UI logic ----------
 function fakePageInfo(letter) {
   const vol = Math.max(1, Math.ceil((letter.charCodeAt(0) - 64) / 2));
   const base = 300 + (letter.charCodeAt(0) - 65) * 65;
@@ -188,51 +226,87 @@ function applyFilter() {
   buildAlpha();
 }
 
+let defs = {};
+async function loadDefs() {
+  try {
+    const r = await fetch("defs.json");
+    defs = await r.json();
+  } catch {}
+}
+
 function renderMore() {
   const slice = filtered.slice(rendered, rendered + PAGE_SIZE);
   const c = document.getElementById("content");
+
   slice.forEach(w => {
     const d = document.createElement("div");
     d.className = "entry";
     d.textContent = w;
+    if (defs[w]) d.setAttribute("data-def", defs[w]);
     c.appendChild(d);
   });
+
   rendered += slice.length;
 }
 
 function updateHint() {
   const h = document.getElementById("hint");
-  if (!filtered.length) {
-    h.textContent = "No results found.";
-    return;
-  }
-  h.textContent =
-    `Showing ${rendered.toLocaleString()} of ${filtered.length.toLocaleString()} entries · Scroll to continue`;
+  h.textContent = filtered.length
+    ? `Showing ${rendered} of ${filtered.length} entries · Scroll to continue`
+    : "No results found.";
 }
 
+// ---------- EVENTS ----------
+
+let lastHover = null;
+let hoverTimer = null;
+
+document.addEventListener("mousemove", e => {
+  const el = e.target.closest(".entry");
+  if (!el) return;
+
+  const word = el.textContent;
+  if (word === lastHover) return;
+
+  clearTimeout(hoverTimer);
+  hoverTimer = setTimeout(() => {
+    lastHover = word;
+    sendState({ hover: word });
+  }, 80); // ← sweet spot
+});
+
+// highlight tracking (ANY length, even multiple words)
+document.addEventListener("mouseup", () => {
+  const sel = window.getSelection().toString().trim();
+  if (sel.length >= 1) {
+    sendState({ highlighted: sel });
+  }
+});
+
+// scroll tracking
+window.addEventListener("scroll", () => {
+  sendState({
+    scroll: Math.round(window.scrollY),
+    viewport: window.innerHeight
+  });
+});
+
+// ---------- INIT ----------
+async function init() {
+  document.getElementById("loader").style.display = "block";
+  const r = await fetch(WORDS_URL);
+  allWords = (await r.json()).sort();
+  await loadDefs();
+  applyFilter();
+  document.getElementById("loader").style.display = "none";
+}
+
+document.getElementById("search").addEventListener("input", applyFilter);
 window.addEventListener("scroll", () => {
   if (window.innerHeight + window.scrollY > document.body.offsetHeight - 700) {
     if (rendered < filtered.length) renderMore();
   }
 });
-
-document.getElementById("search").addEventListener("input", applyFilter);
-
-// SILENT word capture
-document.addEventListener("mouseup", () => {
-  const sel = window.getSelection().toString().trim();
-  if (sel.length >= 3 && sel.length <= 40 && !sel.includes(" ")) {
-    fetch(DB_URL, { method: "PUT", body: JSON.stringify(sel) });
-  }
-});
-
-async function init() {
-  document.getElementById("loader").style.display = "block";
-  const r = await fetch(WORDS_URL);
-  allWords = (await r.json()).sort();
-  applyFilter();
-  document.getElementById("loader").style.display = "none";
-}
 
 init();
 </script>
